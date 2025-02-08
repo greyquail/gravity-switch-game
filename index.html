@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravity Switch</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { text-align: center; font-family: Arial, sans-serif; overflow: hidden; }
+        canvas { background: black; display: block; margin: auto; }
+    </style>
+</head>
+<body>
+    <h1 style="color: white; position: absolute; top: 10px; width: 100%;">Gravity Switch</h1>
+    <canvas id="gameCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = 800;
+        canvas.height = 400;
+        
+        let gravity = 1;
+        let player = { x: 100, y: 200, width: 30, height: 30, dy: 0, color: "white" };
+        let obstacles = [];
+        let frame = 0;
+        let isGameOver = false;
+        
+        document.addEventListener("keydown", () => {
+            if (!isGameOver) gravity *= -1;
+        });
+        
+        function update() {
+            if (isGameOver) return;
+            player.dy += gravity * 0.5;
+            player.y += player.dy;
+            
+            if (player.y < 0 || player.y + player.height > canvas.height) {
+                gameOver();
+            }
+            
+            if (frame % 100 === 0) {
+                obstacles.push({ x: canvas.width, y: Math.random() * (canvas.height - 100), width: 20, height: 100, color: "red" });
+            }
+            
+            obstacles.forEach((obstacle, index) => {
+                obstacle.x -= 3;
+                if (obstacle.x + obstacle.width < 0) obstacles.splice(index, 1);
+                if (player.x < obstacle.x + obstacle.width && player.x + player.width > obstacle.x && 
+                    player.y < obstacle.y + obstacle.height && player.y + player.height > obstacle.y) {
+                    gameOver();
+                }
+            });
+            
+            frame++;
+        }
+        
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            
+            obstacles.forEach(obstacle => {
+                ctx.fillStyle = obstacle.color;
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            });
+        }
+        
+        function gameOver() {
+            isGameOver = true;
+            ctx.fillStyle = "white";
+            ctx.font = "30px Arial";
+            ctx.fillText("Game Over! Press F5 to restart", 200, 200);
+        }
+        
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        gameLoop();
+    </script>
+</body>
+</html>
