@@ -21,16 +21,17 @@
         canvas.width = 800;
         canvas.height = 400;
         
-        let gravity = 1;
-        let player = { x: 100, y: 200, width: 30, height: 30, dy: 0, color: "yellow" };
+        let player = { x: 100, y: canvas.height - 40, width: 30, height: 30, color: "yellow", onTop: false };
         let obstacles = [];
         let frame = 0;
         let isGameOver = false;
         let speed = 4;
         let score = 0;
+        let groundLevel = canvas.height - player.height;
+        let ceilingLevel = 0;
         
         function switchGravity() {
-            if (!isGameOver) gravity *= -1;
+            if (!isGameOver) player.onTop = !player.onTop;
         }
         
         document.addEventListener("keydown", (e) => {
@@ -43,18 +44,14 @@
         
         function update() {
             if (isGameOver) return;
-            player.dy += gravity * 0.5;
-            player.y += player.dy;
             
-            if (player.y < 0 || player.y + player.height > canvas.height) {
-                gameOver();
-            }
+            player.y = player.onTop ? ceilingLevel : groundLevel;
             
             if (frame % 80 === 0) {
-                let gapY = Math.random() * (canvas.height - 200) + 50;
+                let height = 50 + Math.random() * 100;
                 obstacles.push(
-                    { x: canvas.width, y: 0, width: 30, height: gapY, color: "red" },
-                    { x: canvas.width, y: gapY + 100, width: 30, height: canvas.height - (gapY + 100), color: "red" }
+                    { x: canvas.width, y: groundLevel - height, width: 30, height: height, color: "red" },
+                    { x: canvas.width, y: ceilingLevel, width: 30, height: height, color: "red" }
                 );
                 score++;
                 document.getElementById("score").innerText = score;
