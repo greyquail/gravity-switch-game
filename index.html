@@ -6,13 +6,14 @@
     <title>Gravity Switch</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { text-align: center; font-family: Arial, sans-serif; overflow: hidden; background: #111; color: white; }
-        canvas { background: black; display: block; margin: auto; border: 2px solid white; }
+        body { text-align: center; font-family: Arial, sans-serif; overflow: hidden; background: #222; color: white; }
+        canvas { background: linear-gradient(to bottom, #1e3c72, #2a5298); display: block; margin: auto; border: 2px solid white; }
     </style>
 </head>
 <body>
     <h1>Gravity Switch</h1>
     <p>Press SPACE to switch gravity</p>
+    <p>Score: <span id="score">0</span></p>
     <canvas id="gameCanvas"></canvas>
     <script>
         const canvas = document.getElementById("gameCanvas");
@@ -21,11 +22,12 @@
         canvas.height = 400;
         
         let gravity = 1;
-        let player = { x: 100, y: 200, width: 30, height: 30, dy: 0, color: "white" };
+        let player = { x: 100, y: 200, width: 30, height: 30, dy: 0, color: "yellow" };
         let obstacles = [];
         let frame = 0;
         let isGameOver = false;
-        let speed = 3;
+        let speed = 4;
+        let score = 0;
         
         document.addEventListener("keydown", (e) => {
             if (e.code === "Space" && !isGameOver) gravity *= -1;
@@ -40,12 +42,14 @@
                 gameOver();
             }
             
-            if (frame % 100 === 0) {
-                let gapY = Math.random() * (canvas.height - 150);
+            if (frame % 80 === 0) {
+                let gapY = Math.random() * (canvas.height - 200) + 50;
                 obstacles.push(
-                    { x: canvas.width, y: 0, width: 20, height: gapY, color: "red" },
-                    { x: canvas.width, y: gapY + 100, width: 20, height: canvas.height - (gapY + 100), color: "red" }
+                    { x: canvas.width, y: 0, width: 30, height: gapY, color: "red" },
+                    { x: canvas.width, y: gapY + 100, width: 30, height: canvas.height - (gapY + 100), color: "red" }
                 );
+                score++;
+                document.getElementById("score").innerText = score;
             }
             
             obstacles.forEach((obstacle, index) => {
