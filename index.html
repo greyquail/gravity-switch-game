@@ -7,7 +7,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { text-align: center; font-family: Arial, sans-serif; overflow: hidden; background: #222; color: white; }
-        canvas { background: linear-gradient(to bottom, #1e3c72, #2a5298); display: block; margin: auto; border: 2px solid white; }
+        canvas { background: url('https://source.unsplash.com/800x400/?space,stars') no-repeat center center; background-size: cover; display: block; margin: auto; border: 2px solid white; }
     </style>
 </head>
 <body>
@@ -25,7 +25,7 @@
         let obstacles = [];
         let frame = 0;
         let isGameOver = false;
-        let speed = 4;
+        let speed = 5;
         let score = 0;
         let groundLevel = canvas.height - player.height;
         let ceilingLevel = 0;
@@ -47,11 +47,12 @@
             
             player.y = player.onTop ? ceilingLevel : groundLevel;
             
-            if (frame % 80 === 0) {
-                let height = 50 + Math.random() * 100;
+            if (frame % 60 === 0) {
+                let height = 50 + Math.random() * 150;
+                let gap = 120 + Math.random() * 80;
                 obstacles.push(
                     { x: canvas.width, y: groundLevel - height, width: 30, height: height, color: "red" },
-                    { x: canvas.width, y: ceilingLevel, width: 30, height: height, color: "red" }
+                    { x: canvas.width, y: ceilingLevel, width: 30, height: canvas.height - (height + gap), color: "red" }
                 );
                 score++;
                 document.getElementById("score").innerText = score;
@@ -66,6 +67,7 @@
                 }
             });
             
+            speed += 0.001; // Gradually increase difficulty
             frame++;
         }
         
