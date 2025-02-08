@@ -12,7 +12,7 @@
 </head>
 <body>
     <h1>Gravity Switch</h1>
-    <p>Press SPACE to switch gravity</p>
+    <p>Tap anywhere or press SPACE to switch gravity</p>
     <p>Score: <span id="score">0</span></p>
     <canvas id="gameCanvas"></canvas>
     <script>
@@ -29,8 +29,16 @@
         let speed = 4;
         let score = 0;
         
+        function switchGravity() {
+            if (!isGameOver) gravity *= -1;
+        }
+        
         document.addEventListener("keydown", (e) => {
-            if (e.code === "Space" && !isGameOver) gravity *= -1;
+            if (e.code === "Space") switchGravity();
+        });
+        
+        document.addEventListener("click", () => {
+            switchGravity();
         });
         
         function update() {
