@@ -6,8 +6,10 @@
     <title>Gravity Switch</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { text-align: center; font-family: Arial, sans-serif; overflow: hidden; background: #222; color: white; }
-        canvas { background: url('https://source.unsplash.com/800x400/?space,stars') no-repeat center center; background-size: cover; display: block; margin: auto; border: 2px solid white; }
+        body { text-align: center; font-family: Arial, sans-serif; overflow: hidden; background: #1e1e2f; color: white; }
+        canvas { display: block; margin: auto; border: 2px solid white; background: linear-gradient(to bottom, #1e1e2f, #3a3a5e); }
+        button { margin-top: 20px; padding: 10px 20px; font-size: 16px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; display: none; }
+        button:hover { background-color: #218838; }
     </style>
 </head>
 <body>
@@ -15,13 +17,15 @@
     <p>Tap anywhere or press SPACE to switch gravity</p>
     <p>Score: <span id="score">0</span></p>
     <canvas id="gameCanvas"></canvas>
+    <button id="restartButton" onclick="restartGame()">Restart Game</button>
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
+        const restartButton = document.getElementById("restartButton");
         canvas.width = 800;
         canvas.height = 400;
-        
-        let player = { x: 100, y: canvas.height - 40, width: 30, height: 30, color: "yellow", onTop: false };
+
+        let player = { x: 100, y: canvas.height - 40, width: 40, height: 40, color: "#FFD700", onTop: false };
         let obstacles = [];
         let frame = 0;
         let isGameOver = false;
@@ -29,72 +33,125 @@
         let score = 0;
         let groundLevel = canvas.height - player.height;
         let ceilingLevel = 0;
-        
+        let backgroundY = 0;
+
         function switchGravity() {
             if (!isGameOver) player.onTop = !player.onTop;
         }
-        
+
         document.addEventListener("keydown", (e) => {
             if (e.code === "Space") switchGravity();
         });
-        
+
         document.addEventListener("click", () => {
             switchGravity();
         });
-        
-        function update() {
-            if (isGameOver) return;
-            
-            player.y = player.onTop ? ceilingLevel : groundLevel;
-            
-            if (frame % 60 === 0) {
-                let height = 50 + Math.random() * 150;
-                let gap = 120 + Math.random() * 80;
+
+        function generateObstacles() {
+            if (frame % 80 === 0) {
+                let height = 40 + Math.random() * 100;
+                let gap = 120 + Math.random() * 60;
+                let obstacleColor = Math.random() > 0.5 ? "#FF4500" : "#32CD32";
                 obstacles.push(
-                    { x: canvas.width, y: groundLevel - height, width: 30, height: height, color: "red" },
-                    { x: canvas.width, y: ceilingLevel, width: 30, height: canvas.height - (height + gap), color: "red" }
+                    { x: canvas.width, y: groundLevel - height, width: 50, height: height, color: obstacleColor },
+                    { x: canvas.width, y: ceilingLevel, width: 50, height: canvas.height - (height + gap), color: obstacleColor }
                 );
                 score++;
                 document.getElementById("score").innerText = score;
             }
-            
+        }
+
+        function updateObstacles() {
             obstacles.forEach((obstacle, index) => {
                 obstacle.x -= speed;
                 if (obstacle.x + obstacle.width < 0) obstacles.splice(index, 1);
-                if (player.x < obstacle.x + obstacle.width && player.x + player.width > obstacle.x && 
-                    player.y < obstacle.y + obstacle.height && player.y + player.height > obstacle.y) {
+
+                if (
+                    player.x < obstacle.x + obstacle.width &&
+                    player.x + player.width > obstacle.x &&
+                    player.y < obstacle.y + obstacle.height &&
+                    player.y + player.height > obstacle.y
+                ) {
                     gameOver();
                 }
             });
-            
-            speed += 0.001; // Gradually increase difficulty
+        }
+
+        function updateBackground() {
+            backgroundY -= 0.5;
+            if (backgroundY <= -canvas.height) backgroundY = 0;
+        }
+
+        function updatePlayer() {
+            player.y = player.onTop ? ceilingLevel : groundLevel;
+        }
+
+        function updateSpeed() {
+            speed += 0.002; // Gradually increase difficulty
+        }
+
+        function update() {
+            if (isGameOver) return;
+
+            updatePlayer();
+            generateObstacles();
+            updateObstacles();
+            updateBackground();
+            updateSpeed();
             frame++;
         }
-        
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        function drawBackground() {
+            ctx.fillStyle = "#1e1e2f";
+            ctx.fillRect(0, backgroundY, canvas.width, canvas.height);
+            ctx.fillRect(0, backgroundY + canvas.height, canvas.width, canvas.height);
+        }
+
+        function drawPlayer() {
             ctx.fillStyle = player.color;
             ctx.fillRect(player.x, player.y, player.width, player.height);
-            
-            obstacles.forEach(obstacle => {
+        }
+
+        function drawObstacles() {
+            obstacles.forEach((obstacle) => {
                 ctx.fillStyle = obstacle.color;
                 ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
             });
         }
-        
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBackground();
+            drawPlayer();
+            drawObstacles();
+        }
+
         function gameOver() {
             isGameOver = true;
             ctx.fillStyle = "white";
             ctx.font = "30px Arial";
-            ctx.fillText("Game Over! Press F5 to restart", 200, 200);
+            ctx.fillText("Game Over!", canvas.width / 2 - 80, canvas.height / 2 - 20);
+            restartButton.style.display = "inline-block";
         }
-        
+
+        function restartGame() {
+            isGameOver = false;
+            frame = 0;
+            speed = 5;
+            score = 0;
+            obstacles = [];
+            player.onTop = false;
+            document.getElementById("score").innerText = score;
+            restartButton.style.display = "none";
+            gameLoop();
+        }
+
         function gameLoop() {
             update();
             draw();
-            requestAnimationFrame(gameLoop);
+            if (!isGameOver) requestAnimationFrame(gameLoop);
         }
-        
+
         gameLoop();
     </script>
 </body>
