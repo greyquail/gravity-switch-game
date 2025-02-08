@@ -6,12 +6,13 @@
     <title>Gravity Switch</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { text-align: center; font-family: Arial, sans-serif; overflow: hidden; }
-        canvas { background: black; display: block; margin: auto; }
+        body { text-align: center; font-family: Arial, sans-serif; overflow: hidden; background: #111; color: white; }
+        canvas { background: black; display: block; margin: auto; border: 2px solid white; }
     </style>
 </head>
 <body>
-    <h1 style="color: white; position: absolute; top: 10px; width: 100%;">Gravity Switch</h1>
+    <h1>Gravity Switch</h1>
+    <p>Press SPACE to switch gravity</p>
     <canvas id="gameCanvas"></canvas>
     <script>
         const canvas = document.getElementById("gameCanvas");
@@ -24,9 +25,10 @@
         let obstacles = [];
         let frame = 0;
         let isGameOver = false;
+        let speed = 3;
         
-        document.addEventListener("keydown", () => {
-            if (!isGameOver) gravity *= -1;
+        document.addEventListener("keydown", (e) => {
+            if (e.code === "Space" && !isGameOver) gravity *= -1;
         });
         
         function update() {
@@ -39,11 +41,15 @@
             }
             
             if (frame % 100 === 0) {
-                obstacles.push({ x: canvas.width, y: Math.random() * (canvas.height - 100), width: 20, height: 100, color: "red" });
+                let gapY = Math.random() * (canvas.height - 150);
+                obstacles.push(
+                    { x: canvas.width, y: 0, width: 20, height: gapY, color: "red" },
+                    { x: canvas.width, y: gapY + 100, width: 20, height: canvas.height - (gapY + 100), color: "red" }
+                );
             }
             
             obstacles.forEach((obstacle, index) => {
-                obstacle.x -= 3;
+                obstacle.x -= speed;
                 if (obstacle.x + obstacle.width < 0) obstacles.splice(index, 1);
                 if (player.x < obstacle.x + obstacle.width && player.x + player.width > obstacle.x && 
                     player.y < obstacle.y + obstacle.height && player.y + player.height > obstacle.y) {
