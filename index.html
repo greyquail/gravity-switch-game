@@ -7,7 +7,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { text-align: center; font-family: Arial, sans-serif; overflow: hidden; background: #1e1e2f; color: white; }
-        canvas { display: block; margin: auto; border: 2px solid white; background: linear-gradient(to bottom, #1e1e2f, #3a3a5e); }
+        canvas { display: block; margin: auto; border: 2px solid white; background: linear-gradient(to bottom, #87CEEB, #4682B4); }
         button { margin-top: 20px; padding: 10px 20px; font-size: 16px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; display: none; }
         button:hover { background-color: #218838; }
     </style>
@@ -49,12 +49,12 @@
 
         function generateObstacles() {
             if (frame % 80 === 0) {
-                let height = 40 + Math.random() * 100;
+                let obstacleHeight = 40 + Math.random() * 80;
                 let gap = 120 + Math.random() * 60;
                 let obstacleColor = Math.random() > 0.5 ? "#FF4500" : "#32CD32";
                 obstacles.push(
-                    { x: canvas.width, y: groundLevel - height, width: 50, height: height, color: obstacleColor },
-                    { x: canvas.width, y: ceilingLevel, width: 50, height: canvas.height - (height + gap), color: obstacleColor }
+                    { x: canvas.width, y: groundLevel - obstacleHeight, width: 50, height: obstacleHeight, color: obstacleColor },
+                    { x: canvas.width, y: ceilingLevel, width: 50, height: canvas.height - (obstacleHeight + gap), color: obstacleColor }
                 );
                 score++;
                 document.getElementById("score").innerText = score;
@@ -102,7 +102,7 @@
         }
 
         function drawBackground() {
-            ctx.fillStyle = "#1e1e2f";
+            ctx.fillStyle = "#87CEEB";
             ctx.fillRect(0, backgroundY, canvas.width, canvas.height);
             ctx.fillRect(0, backgroundY + canvas.height, canvas.width, canvas.height);
         }
